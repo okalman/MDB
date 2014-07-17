@@ -8,33 +8,38 @@ import java.util.Properties;
  * Created by okalman on 7/15/14.
  */
 public class MDBClient {
+    private static byte exitStatus=0;
     public static void main(String [] args){
         System.out.println("Starting...");
         QueueConnection queueConnection=null;
+        String sMessage= new String();
         try {
             System.out.println("Sending...");
+            sMessage = (args.length>0) ? args[0]:"";
             Context context= getcontext();
             Queue queue= (Queue) context.lookup("/jms/myApp/MyInQueue");
             QueueConnectionFactory factory= (QueueConnectionFactory)context.lookup("jms/RemoteConnectionFactory");
             queueConnection= factory.createQueueConnection();
             QueueSession session= queueConnection.createQueueSession(false, QueueSession.AUTO_ACKNOWLEDGE);
-            TextMessage textMessage = session.createTextMessage("Zpravaaaaaaa2");
+            TextMessage textMessage = session.createTextMessage(sMessage);
             QueueSender queueSender=  session.createSender(queue);
             queueSender.send(textMessage);
             System.out.println("Sent...");
             queueConnection.close();
         } catch (Exception e) {
             e.printStackTrace();
+            exitStatus=1;
         }finally {
              try {
                     queueConnection.close();
                 } catch (JMSException e) {
                     e.printStackTrace();
+                    exitStatus=2;
                 }
 
 
         }
-
+    System.exit(exitStatus      );
 
     }
 

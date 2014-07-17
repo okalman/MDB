@@ -11,7 +11,7 @@ import java.util.Properties;
  */
 public class MDBClient2 {
 
-
+     private static byte exitCode=0;
     public static void main(String [] args){
         System.out.println("Starting...");
         QueueConnection queueConnection=null;
@@ -28,6 +28,10 @@ public class MDBClient2 {
 
             while(true){
                 message= (TextMessage)queueReceiver.receive();
+                if(message.getText().equals("session_end"))
+                    break;
+                if(message.getText().equals("throw_exception"))
+                    throw new Exception("My test Exception");
                 System.out.println("Received: " + message.getText());
 
             }
@@ -36,15 +40,18 @@ public class MDBClient2 {
 
         } catch (Exception e) {
             e.printStackTrace();
+            exitCode=1;
         }finally {
             try{
-                queueConnection.close();
+               if(queueConnection!=null) queueConnection.close();
             }catch(Exception e){
                 e.printStackTrace();
+                exitCode=2;
             }
          System.out.println("End");
-        }
 
+        }
+        System.exit(exitCode);
 
     }
 

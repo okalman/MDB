@@ -31,7 +31,7 @@ public class MessageBeanBean implements MessageListener {
             QueueSession session = queueConnection.createQueueSession(false, QueueSession.AUTO_ACKNOWLEDGE);
             QueueSender queueSender = session.createSender(queue);
             queueSender.send(message);
-            System.out.println(((TextMessage) message).getText() + " Novy build2");
+            System.out.println(((TextMessage) message).getText());
         }catch (Exception e){
             e.printStackTrace();
         }
