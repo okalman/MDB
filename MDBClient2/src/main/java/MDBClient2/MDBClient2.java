@@ -13,10 +13,10 @@ public class MDBClient2 {
 
      private static byte exitCode=0;
     public static void main(String [] args){
-        System.out.println("Starting...");
+      //  System.out.println("Starting...");
         QueueConnection queueConnection=null;
         try {
-            System.out.println("Reading...");
+          //  System.out.println("Reading...");
             Context context= getcontext();
             Queue queue= (Queue) context.lookup("/jms/myApp/MyOutQueue");
             QueueConnectionFactory factory= (QueueConnectionFactory)context.lookup("jms/RemoteConnectionFactory");
@@ -25,16 +25,10 @@ public class MDBClient2 {
             QueueSession session= queueConnection.createQueueSession(false, QueueSession.AUTO_ACKNOWLEDGE);
             QueueReceiver queueReceiver=session.createReceiver(queue);
             TextMessage message= null;
+             message= (TextMessage)queueReceiver.receive();
+             System.out.println(message.getText());
 
-            while(true){
-                message= (TextMessage)queueReceiver.receive();
-                if(message.getText().equals("session_end"))
-                    break;
-                if(message.getText().equals("throw_exception"))
-                    throw new Exception("My test Exception");
-                System.out.println("Received: " + message.getText());
 
-            }
 
 
 
@@ -48,7 +42,7 @@ public class MDBClient2 {
                 e.printStackTrace();
                 exitCode=2;
             }
-         System.out.println("End");
+         //System.out.println("End");
 
         }
         System.exit(exitCode);

@@ -1,45 +1,43 @@
+import javax.jms.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.jms.*;
 import java.util.Properties;
 
 /**
- * Created by okalman on 7/15/14.
+ * Created by okalman on 7/17/14.
  */
-public class MDBClient {
-    private static byte exitStatus=0;
-    public static void main(String [] args){
-        System.out.println("Starting...");
+public class MDBClient2 {
+    public static String recieve(){
+        //  System.out.println("Starting...");
         QueueConnection queueConnection=null;
-        String sMessage= new String();
+        TextMessage message= null;
         try {
-            System.out.println("Sending...");
-            sMessage = (args.length>0) ? args[0]:"";
+            //  System.out.println("Reading...");
             Context context= getcontext();
-            Queue queue= (Queue) context.lookup("/jms/myApp/MyInQueue");
+            Queue queue= (Queue) context.lookup("queue/jms/MyOutQueue");
             QueueConnectionFactory factory= (QueueConnectionFactory)context.lookup("jms/RemoteConnectionFactory");
             queueConnection= factory.createQueueConnection();
+            queueConnection.start();
             QueueSession session= queueConnection.createQueueSession(false, QueueSession.AUTO_ACKNOWLEDGE);
-            TextMessage textMessage = session.createTextMessage(sMessage);
-            QueueSender queueSender=  session.createSender(queue);
-            queueSender.send(textMessage);
-            System.out.println("Sent...");
+            QueueReceiver queueReceiver=session.createReceiver(queue);
+            message= (TextMessage)queueReceiver.receive();
+            System.out.println(message.getText());
+            return message.getText();
+
         } catch (Exception e) {
             e.printStackTrace();
-            exitStatus=1;
         }finally {
-             try {
-                    queueConnection.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    exitStatus=2;
-                }
-
+            try{
+                if(queueConnection!=null) queueConnection.close();
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            //System.out.println("End");
 
         }
-    System.exit(exitStatus      );
-
+       // System.exit(exitCode);
+        return null;
     }
 
     public static Context getcontext() throws NamingException {
@@ -50,5 +48,4 @@ public class MDBClient {
 
 
     }
-
 }
